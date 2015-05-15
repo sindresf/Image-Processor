@@ -111,8 +111,12 @@ public class AutoImageGroupFlattener {
 
 		// paint both images, preserving the alpha channels
 		Graphics g = combined.getGraphics();
-		g.drawImage(background, 0, 0, null);
-		g.drawImage(overlay, 0, 0, null);
+		g.drawImage(background, 0, 0, null); // these two
+		g.drawImage(overlay, 0, 0, null); // are the normal draw
+
+		g.drawImage(overlay, 80, 80, null); // checking moved draw
+		g.drawImage(overlay, 170, 170, 150, 150, null); // checking scaled draw
+		g.drawImage(background, 330, 330, 100, 100, null); // scale down draw
 
 		// Save as new image
 		try {
