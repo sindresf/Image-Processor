@@ -12,20 +12,18 @@ import my_classes.ImageComponent;
 //TODO either make more flexible, or overload with size and everything
 
 //TODO make all the general parts functions of their own (duh)
+
+//TODO make runnable (extend)
 public class ImageGroupFlattening {
 
-	public BufferedImage Flatten(ArrayList<BufferedImage> images) {
-		File path = new File(" "); // base path of the images
+	public BufferedImage flatten(ArrayList<BufferedImage> images) {
 
 		// load source images
+		// TODO make into an image check, just use all 'good ones' in the
+		// Graphics combine
 		BufferedImage image = null, overlay = null;
-		try {
-			image = ImageIO.read(new File(path, "image.png"));
-			overlay = ImageIO.read(new File(path, "overlay.png"));
-		} catch (IOException e) {
-			// TODO Remember to look into solutions for catches
-			e.printStackTrace();
-		}
+		image = images.get(0);
+		overlay = images.get(1);
 
 		// create the new image, canvas size is the max. of both image sizes
 		int w = Math.max(image.getWidth(), overlay.getWidth());
@@ -42,7 +40,7 @@ public class ImageGroupFlattening {
 
 	}
 
-	public void Flatten(ArrayList<ImageComponent> images, String combinedPath) {
+	public void flatten(ArrayList<ImageComponent> images, String combinedPath) {
 
 		// load source images
 		// TODO make into an image check, just use all 'good ones' in the
@@ -64,8 +62,7 @@ public class ImageGroupFlattening {
 
 		// Save as new image
 		try {
-			ImageIO.write(combined, "PNG", new File(combinedPath,
-					"combined.png"));
+			ImageIO.write(combined, "PNG", new File(combinedPath));
 		} catch (IOException e) {
 			// TODO Remember to look into solutions for catches
 			e.printStackTrace();
@@ -73,7 +70,7 @@ public class ImageGroupFlattening {
 
 	}
 
-	public BufferedImage Flatten(BufferedImage background, BufferedImage overlay) {
+	public BufferedImage flatten(BufferedImage background, BufferedImage overlay) {
 		// create the new image, canvas size is the max. of both image sizes
 		int w = Math.max(background.getWidth(), overlay.getWidth());
 		int h = Math.max(background.getHeight(), overlay.getHeight());
@@ -89,13 +86,14 @@ public class ImageGroupFlattening {
 		return combined;
 	}
 
-	public void Flatten(String backgroundPath, String overlayPath,
+	// THIS WORKS! :O :D
+	public void flatten(String backgroundPath, String overlayPath,
 			String combinedPath) {
 		// load source images
 		BufferedImage background = null, overlay = null;
 		try {
-			background = ImageIO.read(new File(backgroundPath, "image.png"));
-			overlay = ImageIO.read(new File(overlayPath, "overlay.png"));
+			background = ImageIO.read(new File(backgroundPath));
+			overlay = ImageIO.read(new File(overlayPath));
 		} catch (IOException e) {
 			// TODO Remember to look into solutions for catches
 			e.printStackTrace();
@@ -114,12 +112,20 @@ public class ImageGroupFlattening {
 
 		// Save as new image
 		try {
-			ImageIO.write(combined, "PNG", new File(combinedPath,
-					"combined.png"));
+			ImageIO.write(combined, "PNG", new File(combinedPath));
 		} catch (IOException e) {
 			// TODO Remember to look into solutions for catches
 			e.printStackTrace();
 		}
 	}
 
+	public static void main(String[] args) {
+		ImageGroupFlattening flattener = new ImageGroupFlattening();
+		File file = new File("res/background.png");
+		System.out.println(file.getAbsolutePath());
+		System.out.println("flattening");
+		flattener.flatten("res/background.png", "res/foreground.png",
+				"res/combined.png");
+		System.out.println("done");
+	}
 }
