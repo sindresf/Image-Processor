@@ -22,20 +22,36 @@ import my_classes.ComponentImage;
 public class AutoImageGroupFlattener {
 
 	// TODO look into this sweetass bullshitt with just a folder arg! :O :D
-	public static BufferedImage flatten(String folderWithFiles) {
+	// TODO see if it can be made to take no size parameters
+	// TODO look into MAKING them transparent!
+	// TODO look into file type filtering!
+	public static void flatten(String folderWithFiles, int width, int height) {
 		try {
-			Files.walk(Paths.get("/home/you/Desktop")).forEach(filePath -> {
+			BufferedImage combined = new BufferedImage(width, height,
+					BufferedImage.TYPE_INT_ARGB);
+			Graphics g = combined.getGraphics();
+
+			Files.walk(Paths.get(folderWithFiles)).forEach(filePath -> {
 				if (Files.isRegularFile(filePath)) {
-					System.out.println(filePath);
+					System.out.println("drawing: " + filePath);
+					BufferedImage image;
+
+					try {
+						image = ImageIO.read(filePath.toFile());
+						g.drawImage(image, 0, 0, null);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
 				}
 			});
+
+			// save the flattened folder
+			ImageIO.write(combined, "PNG", new File(
+					"res/IMGFolderTest/combined.png"));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		BufferedImage combined = new BufferedImage(1, 1,
-				BufferedImage.TYPE_INT_ARGB);
-		return combined;
 	}
 
 	public static BufferedImage flatten(ArrayList<ComponentImage> images,
@@ -250,10 +266,11 @@ public class AutoImageGroupFlattener {
 	}
 
 	public static void main(String[] args) {
-
+		// testBasic();
+		testFolder();
 	}
 
-	private void testBasic() {
+	private static void testBasic() {
 		System.out.println("flattening");
 		AutoImageGroupFlattener.flatten("res/background.png",
 				"res/foreground.png", "res/combined.png", "corner");
@@ -286,5 +303,12 @@ public class AutoImageGroupFlattener {
 			System.err.println("failed");
 			e.printStackTrace();
 		}
+	}
+
+	public static void testFolder() {
+		System.out
+				.println("trying to flatten entire folder: 'res/IMGFolderTest'");
+		AutoImageGroupFlattener.flatten("res/IMGFolderTest", 3600, 2000);
+		System.out.println("done");
 	}
 }
