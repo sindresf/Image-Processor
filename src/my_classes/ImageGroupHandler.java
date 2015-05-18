@@ -23,6 +23,7 @@ public class ImageGroupHandler {
 	// like:
 	// TODO make this make sense when the auto works
 	public void flattenGroup() {
-		flatImage = AutoImageGroupFlattener.getFlat("group1", "group2");
+		flatImage = AutoImageGroupFlattener.flatten("group1", "group2",
+				"corner");
 	}
 }

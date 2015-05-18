@@ -55,8 +55,17 @@ public class AutoImageGroupFlattener {
 		BufferedImage combined = new BufferedImage(width, height,
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics g = combined.getGraphics();
-		for (BufferedImage image : images) {
-			g.drawImage(image, 0, 0, null);
+		if (positioning.equals("corner")) {
+			for (ComponentImage image : images) {
+				g.drawImage(image, 0, 0, null);
+			}
+		} else if (positioning.equals("center")) {
+			for (ComponentImage image : images) {
+				int[] relativeXY = {
+						(int) (width / 2.0 - image.getWidth() / 2.0),
+						(int) (height / 2.0 - image.getHeight() / 2.0) };
+				g.drawImage(image, relativeXY[0], relativeXY[1], null);
+			}
 		}
 
 		return combined;
@@ -90,24 +99,35 @@ public class AutoImageGroupFlattener {
 	public static void flatten(ArrayList<ComponentImage> images,
 			String combinedPath, String positioning, String combinedSize) {
 
-		// load source images
-		// TODO make into an image check, just use all 'good ones' in the
-		// Graphics combine
-		BufferedImage image = null, overlay = null;
-		image = images.get(0);
-		overlay = images.get(1);
+		int width = 0;
+		int height = 0;
+		if (combinedSize.equals("average")) {
+			int[] widthHeight = getImageAverageWidthHeight(images);
+			width = widthHeight[0];
+			height = widthHeight[1];
+		} else if (combinedSize.equals("max")) {
+			int[] widthHeight = findMaxSideLength(images);
+			width = widthHeight[0];
+			height = widthHeight[1];
+		}
 
-		// create the new image, canvas size is the max. of both image sizes
-		int w = Math.max(image.getWidth(), overlay.getWidth());
-		int h = Math.max(image.getHeight(), overlay.getHeight());
-		BufferedImage combined = new BufferedImage(w, h,
+		BufferedImage combined = new BufferedImage(width, height,
 				BufferedImage.TYPE_INT_ARGB);
 
 		// paint both images, preserving the alpha channels
 		Graphics g = combined.getGraphics();
-		g.drawImage(image, 0, 0, null);
-		g.drawImage(overlay, 0, 0, null);
-
+		if (positioning.equals("corner")) {
+			for (ComponentImage image : images) {
+				g.drawImage(image, 0, 0, null);
+			}
+		} else if (positioning.equals("center")) {
+			for (ComponentImage image : images) {
+				int[] relativeXY = {
+						(int) (width / 2.0 - image.getWidth() / 2.0),
+						(int) (height / 2.0 - image.getHeight() / 2.0) };
+				g.drawImage(image, relativeXY[0], relativeXY[1], null);
+			}
+		}
 		// Save as new image
 		try {
 			ImageIO.write(combined, "PNG", new File(combinedPath));
@@ -118,6 +138,7 @@ public class AutoImageGroupFlattener {
 
 	}
 
+	// DOES ITS THING
 	public static BufferedImage flatten(ComponentImage background,
 			ComponentImage overlay, String positioning) {
 		// create the new image, canvas size is the max. of both image sizes
@@ -129,13 +150,22 @@ public class AutoImageGroupFlattener {
 
 		// paint both images, preserving the alpha channels
 		Graphics g = combined.getGraphics();
-		g.drawImage(background, 0, 0, null);
-		g.drawImage(overlay, 0, 0, null);
+		if (positioning.equals("corner")) {
+			g.drawImage(background, 0, 0, null);
+			g.drawImage(overlay, 0, 0, null);
+		} else if (positioning.equals("center")) {
+			int[] imageXY = { background.getWidth(), background.getHeight() };
+			int[] relativeXY = {
+					(int) (imageXY[0] / 2.0 - overlay.getWidth() / 2.0),
+					(int) (imageXY[1] / 2.0 - overlay.getHeight() / 2.0) };
+			g.drawImage(background, 0, 0, null);
+			g.drawImage(overlay, relativeXY[0], relativeXY[1], null);
+		}
 
 		return combined;
 	}
 
-	// THIS WORKS! :O :D
+	// DOES ITS THING
 	public static void flatten(String backgroundPath, String overlayPath,
 			String combinedPath, String positioning) {
 		// load source images
@@ -156,12 +186,17 @@ public class AutoImageGroupFlattener {
 
 		// paint both images, preserving the alpha channels
 		Graphics g = combined.getGraphics();
-		g.drawImage(background, 0, 0, null); // these two
-		g.drawImage(overlay, 0, 0, null); // are the normal draw
-
-		g.drawImage(overlay, 80, 80, null); // checking moved draw
-		g.drawImage(overlay, 170, 170, 150, 150, null); // checking scaled draw
-		g.drawImage(background, 330, 330, 100, 100, null); // scale down draw
+		if (positioning.equals("corner")) {
+			g.drawImage(background, 0, 0, null);
+			g.drawImage(overlay, 0, 0, null);
+		} else if (positioning.equals("center")) {
+			int[] imageXY = { background.getWidth(), background.getHeight() };
+			int[] relativeXY = {
+					(int) (imageXY[0] / 2.0 - overlay.getWidth() / 2.0),
+					(int) (imageXY[1] / 2.0 - overlay.getHeight() / 2.0) };
+			g.drawImage(background, 0, 0, null);
+			g.drawImage(overlay, relativeXY[0], relativeXY[1], null);
+		}
 
 		// Save as new image
 		try {
@@ -172,6 +207,7 @@ public class AutoImageGroupFlattener {
 		}
 	}
 
+	// DOES ITS THING
 	public static BufferedImage flatten(String backgroundPath,
 			String overlayPath, String positioning) {
 		// load source images
@@ -192,8 +228,17 @@ public class AutoImageGroupFlattener {
 
 		// paint both images, preserving the alpha channels
 		Graphics g = combined.getGraphics();
-		g.drawImage(background, 0, 0, null);
-		g.drawImage(overlay, 0, 0, null);
+		if (positioning.equals("corner")) {
+			g.drawImage(background, 0, 0, null);
+			g.drawImage(overlay, 0, 0, null);
+		} else if (positioning.equals("center")) {
+			int[] imageXY = { background.getWidth(), background.getHeight() };
+			int[] relativeXY = {
+					(int) (imageXY[0] / 2.0 - overlay.getWidth() / 2.0),
+					(int) (imageXY[1] / 2.0 - overlay.getHeight() / 2.0) };
+			g.drawImage(background, 0, 0, null);
+			g.drawImage(overlay, relativeXY[0], relativeXY[1], null);
+		}
 
 		return combined;
 	}
@@ -205,11 +250,41 @@ public class AutoImageGroupFlattener {
 	}
 
 	public static void main(String[] args) {
-		File file = new File("res/background.png");
-		System.out.println(file.getAbsolutePath());
+
+	}
+
+	private void testBasic() {
 		System.out.println("flattening");
 		AutoImageGroupFlattener.flatten("res/background.png",
 				"res/foreground.png", "res/combined.png", "corner");
 		System.out.println("done");
+
+		System.out.println("getting flattened cornered image");
+		BufferedImage cornered = AutoImageGroupFlattener.flatten(
+				"res/background.png", "res/foreground.png", "corner");
+		System.out.println("got it");
+		System.out.println("storing it in 'cornered.png'");
+		try {
+			ImageIO.write(cornered, "PNG", new File("res/cornered.png"));
+			System.out.println("done");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.err.println("failed");
+			e.printStackTrace();
+		}
+
+		System.out.println("getting flattened centered image");
+		BufferedImage centered = AutoImageGroupFlattener.flatten(
+				"res/background.png", "res/foreground.png", "center");
+		System.out.println("got it");
+		System.out.println("storing it in 'cornered.png'");
+		try {
+			ImageIO.write(centered, "PNG", new File("res/centered.png"));
+			System.out.println("done");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.err.println("failed");
+			e.printStackTrace();
+		}
 	}
 }
