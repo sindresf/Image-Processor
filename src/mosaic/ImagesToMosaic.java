@@ -53,7 +53,6 @@ public class ImagesToMosaic {
 				else if (type.equals("blend"))
 					x = (piece * componentWidth * imageCount) + imageIndex
 							* componentWidth;
-				System.out.println("xSub = " + x);
 				int y = 0;
 				int width = componentWidth;
 				int height = combinedHeight;
@@ -64,7 +63,6 @@ public class ImagesToMosaic {
 				int offset = imageIndex * componentWidth;
 				x = (piece * relWidth) + offset;
 				y = 0;
-				System.out.println("xDraw = " + x);
 				g.drawImage(subImg, x, 0, componentWidth, combinedHeight, null);
 			}
 			imageIndex++;
@@ -100,8 +98,8 @@ public class ImagesToMosaic {
 		images.add(clean);
 		images.add(dirty);
 		System.out.println("making a 'hard' stripe mosaic of them.");
-		int pieceWidth = clean.getWidth() / 10; // e.i. total image width by how
-												// many pieces
+		int pieces = 10;
+		int pieceWidth = clean.getWidth() / pieces;
 		System.out.println("pieceWidth: " + pieceWidth);
 		int combinedWidth = clean.getWidth() + dirty.getWidth();
 		System.out.println("the combined width: " + combinedWidth);
@@ -111,7 +109,8 @@ public class ImagesToMosaic {
 
 		System.out.println("making a 'blended' stripe mosaic of them.");
 		combinedWidth = (int) ((clean.getWidth() + dirty.getWidth()) / 2.0);
-		pieceWidth = (int) (combinedWidth / 73);
+		pieces = 50;
+		pieceWidth = (int) (combinedWidth / pieces);
 		// many pieces
 		System.out.println("pieceWidth: " + pieceWidth);
 		System.out.println("the combined width: " + combinedWidth);
