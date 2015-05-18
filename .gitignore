@@ -45,7 +45,6 @@ hs_err_pid*
 ehthumbs.db
 Thumbs.db
 
-# Images #
+# Images folder#
 ##########
-*.jpg
-*.png
+res/
