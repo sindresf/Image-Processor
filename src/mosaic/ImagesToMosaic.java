@@ -32,38 +32,45 @@ public class ImagesToMosaic {
 		// functions (duh)
 	}
 
-	public static void makeStripeMosaic(ArrayList<BufferedImage> images,
-			int componentWidth, int combinedWidth, int combinedHeight,
+	public static void makeStripeMosaic(
+			ArrayList<BufferedImage> componentImages, int components,
 			String type) {
 		// setup
-		BufferedImage mosaic = new BufferedImage(combinedWidth, combinedHeight,
+		int imageCount = componentImages.size();
+		int mosaicWidth = 0;
+		int avrgHeight = 0;
+		for (BufferedImage image : componentImages) {
+			mosaicWidth += image.getWidth();
+			avrgHeight += image.getHeight();
+		}
+		int mosaicHeight = (int) (avrgHeight / (imageCount + 0.0));
+		BufferedImage mosaic = new BufferedImage(mosaicWidth, mosaicHeight,
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics g = mosaic.getGraphics();
-		int imageCount = images.size();
-		int pieces = (int) (combinedWidth / (componentWidth + 0.0) / imageCount);
 		int imageIndex = 0;
-		System.out.println("pieces: " + pieces);
 
 		// drawing/combining
-		for (BufferedImage compImg : images) {
-			for (int piece = 0; piece < pieces; piece++) {
-				int x = 0;
+		int x = 0;
+		for (BufferedImage componentImg : componentImages) {
+			int pieceWidth = (int) (componentImg.getWidth() / (components + 0.0));
+			for (int piece = 0; piece < components; piece++) {
 				if (type.equals("hard"))
-					x = piece * componentWidth;
+					x = piece * pieceWidth;
 				else if (type.equals("blend"))
-					x = (piece * componentWidth * imageCount) + imageIndex
-							* componentWidth;
+					x = (piece * components * imageCount) + imageIndex
+							* components;
 				int y = 0;
-				int width = componentWidth;
-				int height = combinedHeight;
-				BufferedImage subImg = compImg.getSubimage(x, y, width, height);
+				int width = pieceWidth;
+				int height = Math.max(componentImg.getHeight(), mosaicHeight);
+				BufferedImage subImg = componentImg.getSubimage(x, y, width,
+						height);
 
 				// draw coords
-				int relWidth = componentWidth * imageCount;
-				int offset = imageIndex * componentWidth;
+				int relWidth = components * imageCount;
+				int offset = imageIndex * components;
 				x = (piece * relWidth) + offset;
 				y = 0;
-				g.drawImage(subImg, x, 0, componentWidth, combinedHeight, null);
+				g.drawImage(subImg, x, 0, components, mosaicHeight, null);
 			}
 			imageIndex++;
 		}
@@ -85,10 +92,11 @@ public class ImagesToMosaic {
 
 	public static void main(String[] args) {
 		System.out.println("Getting the clean and dirty images.");
-		BufferedImage clean = null, dirty = null;
+		BufferedImage clean = null, dirty = null, face = null;
 		try {
 			clean = ImageIO.read(new File("res/StripeMosaic/clean.jpg"));
 			dirty = ImageIO.read(new File("res/StripeMosaic/dirty.jpg"));
+			face = ImageIO.read(new File("res/StripeMosaic/face.png"));
 			System.out.println("gottem");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -98,24 +106,19 @@ public class ImagesToMosaic {
 		images.add(clean);
 		images.add(dirty);
 		System.out.println("making a 'hard' stripe mosaic of them.");
-		int pieces = 10;
-		int pieceWidth = clean.getWidth() / pieces;
-		System.out.println("pieceWidth: " + pieceWidth);
+		int pieces = 15;
 		int combinedWidth = clean.getWidth() + dirty.getWidth();
 		System.out.println("the combined width: " + combinedWidth);
-		ImagesToMosaic.makeStripeMosaic(images, pieceWidth, combinedWidth,
-				clean.getHeight(), "hard");
+		ImagesToMosaic.makeStripeMosaic(images, pieces, "hard");
 		System.out.println("hard done.\n\n");
 
+		images.add(face);
 		System.out.println("making a 'blended' stripe mosaic of them.");
-		combinedWidth = (int) ((clean.getWidth() + dirty.getWidth()) / 2.0);
+		combinedWidth = (int) (((clean.getWidth() + dirty.getWidth() + face
+				.getWidth())) / images.size());
 		pieces = 50;
-		pieceWidth = (int) (combinedWidth / pieces);
-		// many pieces
-		System.out.println("pieceWidth: " + pieceWidth);
 		System.out.println("the combined width: " + combinedWidth);
-		ImagesToMosaic.makeStripeMosaic(images, pieceWidth, combinedWidth,
-				clean.getHeight(), "blend");
+		ImagesToMosaic.makeStripeMosaic(images, pieces, "blend");
 		System.out.println("done.");
 	}
 }

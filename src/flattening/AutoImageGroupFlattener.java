@@ -266,7 +266,7 @@ public class AutoImageGroupFlattener {
 	}
 
 	public static void main(String[] args) {
-		// testBasic();
+		testBasic();
 		testFolder();
 	}
 
