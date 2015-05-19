@@ -26,10 +26,8 @@ public class AutoImageGroupFlattener {
 	// TODO look into MAKING them transparent!
 	// TODO look into file type filtering!
 	public static void flatten(String folderWithFiles, int width, int height) {
+		ArrayList<BufferedImage> images = new ArrayList<>();
 		try {
-			BufferedImage combined = new BufferedImage(width, height,
-					BufferedImage.TYPE_INT_ARGB);
-			Graphics g = combined.getGraphics();
 
 			Files.walk(Paths.get(folderWithFiles)).forEach(filePath -> {
 				if (Files.isRegularFile(filePath)) {
@@ -38,7 +36,7 @@ public class AutoImageGroupFlattener {
 
 					try {
 						image = ImageIO.read(filePath.toFile());
-						g.drawImage(image, 0, 0, null);
+						images.add(image);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -46,12 +44,18 @@ public class AutoImageGroupFlattener {
 				}
 			});
 
-			// save the flattened folder
-			ImageIO.write(combined, "PNG", new File(
-					"res/IMGFolderTest/combined.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		BufferedImage combined = new BufferedImage(width, height,
+				BufferedImage.TYPE_INT_ARGB);
+		Graphics g = combined.getGraphics();
+		for (BufferedImage image : images) {
+			g.drawImage(image, 0, 0, null);
+		}
+
+		String filepath = "res/folderflatten.png";
+		writePNGTo(combined, filepath);
 	}
 
 	public static BufferedImage flatten(ArrayList<ComponentImage> images,
@@ -144,13 +148,8 @@ public class AutoImageGroupFlattener {
 				g.drawImage(image, relativeXY[0], relativeXY[1], null);
 			}
 		}
-		// Save as new image
-		try {
-			ImageIO.write(combined, "PNG", new File(combinedPath));
-		} catch (IOException e) {
-			// TODO Remember to look into solutions for catches
-			e.printStackTrace();
-		}
+
+		writePNGTo(combined, combinedPath);
 
 	}
 
@@ -214,13 +213,7 @@ public class AutoImageGroupFlattener {
 			g.drawImage(overlay, relativeXY[0], relativeXY[1], null);
 		}
 
-		// Save as new image
-		try {
-			ImageIO.write(combined, "PNG", new File(combinedPath));
-		} catch (IOException e) {
-			// TODO Remember to look into solutions for catches
-			e.printStackTrace();
-		}
+		writePNGTo(combined, combinedPath);
 	}
 
 	// DOES ITS THING
@@ -263,6 +256,16 @@ public class AutoImageGroupFlattener {
 		int[] xy = new int[2];
 
 		return xy;
+	}
+
+	private static void writePNGTo(BufferedImage image, String filepath) {
+		// Save as new image
+		try {
+			ImageIO.write(image, "PNG", new File(filepath));
+		} catch (IOException e) {
+			// TODO Remember to look into solutions for catches
+			e.printStackTrace();
+		}
 	}
 
 	public static void main(String[] args) {
