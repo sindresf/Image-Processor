@@ -75,6 +75,155 @@ public class ImagesToMosaic {
 
 	}
 
+	public static void makeHardStripe(ArrayList<BufferedImage> componentImages,
+			int components) {
+
+		// setup
+		int imageCount = componentImages.size();
+		System.out.println("imageCount = " + imageCount);
+		int mosaicWidth = 0;
+		int avrgHeight = 0;
+		for (BufferedImage image : componentImages) {
+			mosaicWidth += image.getWidth();
+			avrgHeight += image.getHeight();
+		}
+		int mosaicHeight = (int) (avrgHeight / (imageCount + 0.0));
+		System.out.println("mosaic width and height: " + mosaicWidth + ", "
+				+ mosaicHeight);
+		BufferedImage mosaic = new BufferedImage(mosaicWidth, mosaicHeight,
+				BufferedImage.TYPE_INT_ARGB);
+		Graphics g = mosaic.getGraphics();
+
+		// for draw scaling
+		int pieceWidth = (int) (mosaicWidth / ((components * imageCount) + 0.0));
+		System.out.println("draw pieceWidth = " + pieceWidth);
+
+		int imageIndex = 0;
+		// going through the images
+		for (BufferedImage componentImg : componentImages) {
+			// making pieceWidth for the particular image based of it's width
+			// for subImg
+			int imagePieceWidth = (int) (componentImg.getWidth() / (components + 0.0));
+			System.out.println();
+			System.out.println("image " + imageIndex);
+			System.out.println("image width = " + componentImg.getWidth());
+			System.out.println("sub pieceWidth = " + imagePieceWidth);
+			for (int piece = 0; piece < components; piece++) {
+				int xSub = piece * imagePieceWidth;
+				int width = imagePieceWidth;
+				int height = componentImg.getHeight();
+
+				System.out.println("piece sub X: " + xSub);
+				// THIS IS WHOLLY RELIANT ON THE IMAGE'S DOMENTIONS!
+				BufferedImage subImg = componentImg.getSubimage(xSub, 0, width,
+						height);
+
+				// draw coords
+				int offset = (imageIndex * pieceWidth);
+				int xDraw = (piece * pieceWidth * imageCount) + offset;
+
+				// THIS IS IRRESPECTIVE OF IMAGE DIMENTIONS"
+				System.out.println("piece draw X: " + xDraw);
+				g.drawImage(subImg, xDraw, 0, pieceWidth, mosaicHeight, null);
+			}
+			imageIndex++;
+		}
+
+		// saving to disk
+		try {
+
+			ImageIO.write(mosaic, "PNG", new File(
+					"res/StripeMosaic/hardstripeMosaic.png"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public static void makeBlendStripe(
+			ArrayList<BufferedImage> componentImages, int components) {
+		// setup
+		int imageCount = componentImages.size();
+		System.out.println("imageCount = " + imageCount);
+		int avrgWidth = 0;
+		int avrgHeight = 0;
+		for (BufferedImage image : componentImages) {
+			avrgWidth += image.getWidth();
+			avrgHeight += image.getHeight();
+		}
+		int mosaicWidth = (int) (avrgWidth / (imageCount + 0.0));
+		int mosaicHeight = (int) (avrgHeight / (imageCount + 0.0));
+		System.out.println("mosaic width and height: " + mosaicWidth + ", "
+				+ mosaicHeight);
+		BufferedImage mosaic = new BufferedImage(mosaicWidth, mosaicHeight,
+				BufferedImage.TYPE_INT_ARGB);
+		Graphics g = mosaic.getGraphics();
+
+		// for draw scaling
+		int pieceWidth = (int) (mosaicWidth / ((components * imageCount) + 0.0));
+		int leftOver = mosaicWidth - (pieceWidth * components * imageCount);
+		System.out.println("draw pieceWidth = " + pieceWidth);
+		System.out.println("leftover pixels: " + leftOver);
+
+		int imageIndex = 0;
+		// drawing/combining
+		System.out.println("imageCount = " + imageCount);
+		for (BufferedImage componentImg : componentImages) {
+			int imagepieceWidth = (int) (componentImg.getWidth() / ((components * imageCount) + 0.0));
+			System.out.println();
+			System.out.println("image " + imageIndex);
+			System.out.println("image width = " + componentImg.getWidth());
+			System.out.println("subImg pieceWidth = " + imagepieceWidth);
+			int height = componentImg.getHeight();
+
+			for (int piece = 0; piece < components; piece++) {
+				int xSub = (piece * imagepieceWidth * imageCount) + imageIndex
+						* imagepieceWidth;
+				int width = imagepieceWidth;
+
+				System.out.println("piece sub X: " + xSub);
+				BufferedImage subImg = componentImg.getSubimage(xSub, 0, width,
+						height);
+
+				// draw coords
+				int offset = (imageIndex * pieceWidth);
+				int xDraw = (piece * pieceWidth * imageCount) + offset;
+				System.out.println("piece draw X: " + xDraw);
+				g.drawImage(subImg, xDraw, 0, pieceWidth, mosaicHeight, null);
+			}
+
+			// filling in the leftOver
+			// TODO make this work
+			if (leftOver > 0) {
+				int xSub = componentImg.getWidth() - components
+						* imagepieceWidth;
+				System.out.println("piece sub x: " + xSub);
+				if (leftOver <= imagepieceWidth)
+					imagepieceWidth = leftOver;
+				BufferedImage subImg = componentImg.getSubimage(xSub, 0,
+						imagepieceWidth, height);
+
+				int xDraw = mosaicWidth - leftOver;
+				System.out.println("piece draw x: " + xDraw);
+				g.drawImage(subImg, xDraw, 0, pieceWidth, mosaicHeight, null);
+
+				leftOver -= imagepieceWidth;
+				System.out.println("leftover = " + leftOver);
+			}
+			imageIndex++;
+		}
+
+		// saving to disk
+		try {
+			ImageIO.write(mosaic, "PNG", new File(
+					"res/StripeMosaic/blendedstripeMosaic.png"));
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	public static void makeStripeMosaic(
 			ArrayList<BufferedImage> componentImages, int components,
 			String type) {
@@ -96,31 +245,39 @@ public class ImagesToMosaic {
 
 		// drawing/combining
 		int x = 0;
-		// TODO HERE! THE DRAW MUST CONSIDER EACH IMAGES RELATIVE PIECE WIDTH
-		// FOR FOLLOWING DRAW POSITIONS! HOW!?!?!?
-		// TODO maybe store each image with its piecewidth and stuff in a
-		// componenthashmap thing
+		System.out.println("imageCount = " + imageCount);
+		int componentsPrImage = components;
+		if (type.equals("blend"))
+			componentsPrImage /= (componentImages.size() + 0.0);
 		for (BufferedImage componentImg : componentImages) {
-			int pieceWidth = (int) (componentImg.getWidth() / (components + 0.0));
-			for (int piece = 0; piece < components; piece++) {
+			int imagepieceWidth = (int) (componentImg.getWidth() / (componentsPrImage + 0.0));
+			System.out.println();
+			System.out.println("image " + imageIndex);
+			System.out.println("iamge width = " + componentImg.getWidth());
+			System.out.println("pieceWidth = " + imagepieceWidth);
+			int height = Math.min(componentImg.getHeight(), mosaicHeight);
+			for (int piece = 0; piece < componentsPrImage; piece++) {
 				if (type.equals("hard"))
-					x = piece * pieceWidth;
+					x = piece * imagepieceWidth;
 				else if (type.equals("blend"))
-					x = (piece * pieceWidth * imageCount) + imageIndex
-							* pieceWidth;
+					x = (piece * imagepieceWidth * imageCount) + imageIndex
+							* imagepieceWidth;
 				int y = 0;
-				int width = pieceWidth;
-				int height = Math.min(componentImg.getHeight(), mosaicHeight);
+				int width = imagepieceWidth;
 
+				System.out.println("piece sub X: " + x);
+				// THIS IS WHOLLY RELIANT ON THE IMAGE'S DOMENTIONS!
 				BufferedImage subImg = componentImg.getSubimage(x, y, width,
 						height);
 
 				// draw coords
-				int relWidth = components * imageCount;
-				int offset = imageIndex * components;
-				x = (piece * pieceWidth) + offset;
+				int pieceWidth = (int) ((mosaicWidth + 0.0) / components);
+				int offset = (imageIndex * pieceWidth);
+				x = (piece * pieceWidth * imageCount) + offset;
+
 				y = 0;
-				g.drawImage(subImg, x, 0, subImg.getWidth(), mosaicHeight, null);
+				// THIS IS IRRESPECTIVE OF IMAGE DIMENTIONS"
+				g.drawImage(subImg, x, 0, pieceWidth, mosaicHeight, null);
 			}
 			imageIndex++;
 		}
@@ -129,10 +286,10 @@ public class ImagesToMosaic {
 		try {
 			if (type.equals("hard"))
 				ImageIO.write(mosaic, "PNG", new File(
-						"res/StripeMosaic/hardstripeCombined.png"));
+						"res/StripeMosaic/hardstripeMosaic.png"));
 			else if (type.equals("blend"))
 				ImageIO.write(mosaic, "PNG", new File(
-						"res/StripeMosaic/blendedstripeCombined.png"));
+						"res/StripeMosaic/blendedstripeMosaic.png"));
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -141,7 +298,7 @@ public class ImagesToMosaic {
 	}
 
 	public static void main(String[] args) {
-		testCompressedSquareMosaic();
+		// testCompressedSquareMosaic();
 		testStripeMosaic();
 	}
 
@@ -151,13 +308,21 @@ public class ImagesToMosaic {
 		String pathish = "res/IMGFolderTest/P31017";
 		try {
 			im1 = ImageIO.read(new File(pathish + "13.JPG"));
+			System.out.print(".");
 			im2 = ImageIO.read(new File(pathish + "16.JPG"));
+			System.out.print(".");
 			im3 = ImageIO.read(new File(pathish + "18.JPG"));
+			System.out.print(".");
 			im4 = ImageIO.read(new File(pathish + "19.JPG"));
+			System.out.print(".");
 			im5 = ImageIO.read(new File(pathish + "23.JPG"));
+			System.out.print(".");
 			im6 = ImageIO.read(new File(pathish + "26.JPG"));
+			System.out.print(".");
 			im7 = ImageIO.read(new File(pathish + "29.JPG"));
+			System.out.print(".");
 			im8 = ImageIO.read(new File(pathish + "31.JPG"));
+			System.out.println(".");
 			im9 = ImageIO.read(new File("res/background.png"));
 			System.out.println("gottem!");
 		} catch (IOException e) {
@@ -191,7 +356,9 @@ public class ImagesToMosaic {
 		BufferedImage clean = null, dirty = null, face = null;
 		try {
 			clean = ImageIO.read(new File("res/StripeMosaic/clean.jpg"));
+			System.out.print(".");
 			dirty = ImageIO.read(new File("res/StripeMosaic/dirty.jpg"));
+			System.out.println(".");
 			face = ImageIO.read(new File("res/StripeMosaic/face.png"));
 			System.out.println("gottem");
 		} catch (IOException e) {
@@ -201,15 +368,15 @@ public class ImagesToMosaic {
 		ArrayList<BufferedImage> images = new ArrayList<>();
 		images.add(clean);
 		images.add(dirty);
-		System.out.println("making a 'hard' stripe mosaic of them.");
+		System.out.println("making a 'hard' stripe mosaic of clean and dirty.");
 		int pieces = 10;
-		ImagesToMosaic.makeStripeMosaic(images, pieces, "hard");
+		// ImagesToMosaic.makeHardStripe(images, pieces);
 		System.out.println("hard done.\n\n");
 
 		images.add(face);
-		System.out.println("making a 'blended' stripe mosaic of them.");
-		pieces = 50;
-		ImagesToMosaic.makeStripeMosaic(images, pieces, "blend");
+		System.out.println("making a 'blended' stripe mosaic of all three.");
+		pieces = 20;
+		ImagesToMosaic.makeBlendStripe(images, pieces);
 		System.out.println("done.");
 	}
 }
