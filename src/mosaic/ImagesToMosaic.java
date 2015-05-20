@@ -206,79 +206,6 @@ public class ImagesToMosaic {
 		}
 	}
 
-	public static void makeStripeMosaic(
-			ArrayList<BufferedImage> componentImages, int components,
-			String type) {
-		// setup
-		int imageCount = componentImages.size();
-		int mosaicWidth = 0;
-		int avrgHeight = 0;
-		for (BufferedImage image : componentImages) {
-			mosaicWidth += image.getWidth();
-			avrgHeight += image.getHeight();
-		}
-		if (type.equals("blend"))
-			mosaicWidth = (int) (mosaicWidth / (imageCount + 0.0));
-		int mosaicHeight = (int) (avrgHeight / (imageCount + 0.0));
-		BufferedImage mosaic = new BufferedImage(mosaicWidth, mosaicHeight,
-				BufferedImage.TYPE_INT_ARGB);
-		Graphics g = mosaic.getGraphics();
-		int imageIndex = 0;
-
-		// drawing/combining
-		int x = 0;
-		System.out.println("imageCount = " + imageCount);
-		int componentsPrImage = components;
-		if (type.equals("blend"))
-			componentsPrImage /= (componentImages.size() + 0.0);
-		for (BufferedImage componentImg : componentImages) {
-			int imagepieceWidth = (int) (componentImg.getWidth() / (componentsPrImage + 0.0));
-			System.out.println();
-			System.out.println("image " + imageIndex);
-			System.out.println("iamge width = " + componentImg.getWidth());
-			System.out.println("pieceWidth = " + imagepieceWidth);
-			int height = Math.min(componentImg.getHeight(), mosaicHeight);
-			for (int piece = 0; piece < componentsPrImage; piece++) {
-				if (type.equals("hard"))
-					x = piece * imagepieceWidth;
-				else if (type.equals("blend"))
-					x = (piece * imagepieceWidth * imageCount) + imageIndex
-							* imagepieceWidth;
-				int y = 0;
-				int width = imagepieceWidth;
-
-				System.out.println("piece sub X: " + x);
-				// THIS IS WHOLLY RELIANT ON THE IMAGE'S DOMENTIONS!
-				BufferedImage subImg = componentImg.getSubimage(x, y, width,
-						height);
-
-				// draw coords
-				int pieceWidth = (int) ((mosaicWidth + 0.0) / components);
-				int offset = (imageIndex * pieceWidth);
-				x = (piece * pieceWidth * imageCount) + offset;
-
-				y = 0;
-				// THIS IS IRRESPECTIVE OF IMAGE DIMENTIONS"
-				g.drawImage(subImg, x, 0, pieceWidth, mosaicHeight, null);
-			}
-			imageIndex++;
-		}
-
-		// saving to disk
-		try {
-			if (type.equals("hard"))
-				ImageIO.write(mosaic, "PNG", new File(
-						"res/StripeMosaic/hardstripeMosaic.png"));
-			else if (type.equals("blend"))
-				ImageIO.write(mosaic, "PNG", new File(
-						"res/StripeMosaic/blendedstripeMosaic.png"));
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
 	public static void main(String[] args) {
 		testCompressedSquareMosaic();
 		testStripeMosaic();
@@ -357,7 +284,7 @@ public class ImagesToMosaic {
 		System.out.println("hard done.\n\n");
 
 		System.out.println("making a 'blended' stripe mosaic of all three.");
-		pieces = 20;
+		pieces = 50;
 		ImagesToMosaic.makeBlendStripe(images, pieces);
 		System.out.println("done.");
 	}
