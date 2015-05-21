@@ -13,31 +13,13 @@ import my_classes.ComponentImage;
 //TODO overload and think of special mosaics, like "every other" and such
 public class ImagesToMosaic {
 
-	public void makeMosaic() {
-		// TODO remember to make this
-
-		// TODO remember this neat little tidbit
-		BufferedImage img = null;
-		try {
-			img = ImageIO.read(new File("file"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		img = img.getSubimage(50, 50, 500, 500); // 500 x 500, at 50,50
-	}
-
 	public void makePieceSquareMosaic(ArrayList<BufferedImage> images,
 			int mosaicWidth, int mosaicHeight, int rows, int squares) {
-		// TODO and this have as much in common, and pull it all out into
-		// functions (duh)
 	}
 
 	public static void makeCompressedSquareMosaic(
 			ArrayList<BufferedImage> images, int mosaicWidth, int mosaicHeight,
 			int rows, int squaresPrRow) {
-		// TODO and this have as much in common, and pull it all out into
-		// functions (duh)
 
 		int squareWidth = (int) ((mosaicWidth + 0.0) / squaresPrRow);
 		int squareHeight = (int) ((mosaicHeight + 0.0) / rows);
@@ -48,7 +30,6 @@ public class ImagesToMosaic {
 
 		int x = 0;
 		int y = 0;
-
 		for (BufferedImage image : images) {
 			g.drawImage(image, x * squareWidth, y * squareHeight, squareWidth,
 					squareHeight, null);
@@ -58,16 +39,8 @@ public class ImagesToMosaic {
 				y++;
 			}
 		}
-
-		// saving to disk
-		try {
-			ImageIO.write(mosaic, "PNG", new File(
-					"res/compressedSquareMosaic.png"));
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		String path = "res/compressedSquareMosaic.png";
+		writeImageFile(mosaic, path);
 
 	}
 
@@ -107,8 +80,8 @@ public class ImagesToMosaic {
 		}
 	}
 
-	private static int[] getWidthHeightHard(
-			ArrayList<BufferedImage> componentImages) {
+	private static int[] getWidthHeight(
+			ArrayList<BufferedImage> componentImages, boolean avrgWidth) {
 		int imageCount = componentImages.size();
 		int mosaicWidth = 0;
 		int avrgHeight = 0;
@@ -116,10 +89,11 @@ public class ImagesToMosaic {
 			mosaicWidth += image.getWidth();
 			avrgHeight += image.getHeight();
 		}
+		if (avrgWidth)
+			mosaicWidth = (int) (mosaicWidth / (imageCount + 0.0));
 		int mosaicHeight = (int) (avrgHeight / (imageCount + 0.0));
 		int[] mosaicWidthHeight = { mosaicWidth, mosaicHeight };
 		return mosaicWidthHeight;
-
 	}
 
 	public static void makeHardStripe(ArrayList<BufferedImage> componentImages,
@@ -127,7 +101,7 @@ public class ImagesToMosaic {
 
 		int imageCount = componentImages.size();
 
-		int[] mosaicWidthHeight = getWidthHeightHard(componentImages);
+		int[] mosaicWidthHeight = getWidthHeight(componentImages, false);
 		BufferedImage mosaic = new BufferedImage(mosaicWidthHeight[0],
 				mosaicWidthHeight[1], BufferedImage.TYPE_INT_ARGB);
 		Graphics g = mosaic.getGraphics();
@@ -170,26 +144,11 @@ public class ImagesToMosaic {
 		}
 	}
 
-	private static int[] getWidthHeightBlend(
-			ArrayList<BufferedImage> componentImages) {
-		int imageCount = componentImages.size();
-		int avrgWidth = 0;
-		int avrgHeight = 0;
-		for (BufferedImage image : componentImages) {
-			avrgWidth += image.getWidth();
-			avrgHeight += image.getHeight();
-		}
-		int mosaicWidth = (int) (avrgWidth / (imageCount + 0.0));
-		int mosaicHeight = (int) (avrgHeight / (imageCount + 0.0));
-		int[] widthHeight = { mosaicWidth, mosaicHeight };
-		return widthHeight;
-	}
-
 	public static void makeBlendStripe(
 			ArrayList<BufferedImage> componentImages, int components) {
 
 		int imageCount = componentImages.size();
-		int[] mosaicWidthHeight = getWidthHeightBlend(componentImages);
+		int[] mosaicWidthHeight = getWidthHeight(componentImages, true);
 		BufferedImage mosaic = new BufferedImage(mosaicWidthHeight[0],
 				mosaicWidthHeight[1], BufferedImage.TYPE_INT_ARGB);
 		Graphics g = mosaic.getGraphics();
@@ -222,7 +181,7 @@ public class ImagesToMosaic {
 	}
 
 	public static void main(String[] args) {
-		testCompressedSquareMosaic();
+		// testCompressedSquareMosaic();
 		testStripeMosaic();
 	}
 
