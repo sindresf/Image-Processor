@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
-import my_classes.ComponentImage;
+import my_classes.images.ComponentImage;
 
 //TODO overload and think of special mosaics, like "every other" and such
 public class ImagesToMosaic {

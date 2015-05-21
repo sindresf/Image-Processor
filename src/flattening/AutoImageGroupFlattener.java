@@ -10,8 +10,8 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
-import my_classes.ComponentImage;
-import my_classes.ImageFolderHandler;
+import my_classes.files_n_folders.ImageFolderHandler;
+import my_classes.images.ComponentImage;
 
 //TODO either make more flexible, or overload with size and everything
 

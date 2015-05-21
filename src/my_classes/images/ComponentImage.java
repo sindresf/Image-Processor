@@ -1,4 +1,4 @@
-package my_classes;
+package my_classes.images;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;

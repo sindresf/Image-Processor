@@ -1,4 +1,4 @@
-package my_classes;
+package my_classes.files_n_folders;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;

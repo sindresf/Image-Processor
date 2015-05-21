@@ -1,12 +1,15 @@
 package image.to.mp4;
 
-import my_classes.Folder;
+import my_classes.files_n_folders.Folder;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+
 import javax.imageio.ImageIO;
+
 import org.jcodec.common.*;
 import org.jcodec.common.model.Size;
 import org.jcodec.common.model.TapeTimecode;
