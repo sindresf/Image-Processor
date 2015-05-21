@@ -16,7 +16,36 @@ public class ImageFolderHandler {
 	public static ArrayList<BufferedImage> getImageFiles(String folderPath) {
 		System.out.println("getting image files from " + folderPath);
 		ArrayList<BufferedImage> images = new ArrayList<>();
+		// All image file extensions acceptable
 		final List<String> extensions = Arrays.asList(".JPG", ".png");
+		try {
+			System.out.println("walking paths");
+			Files.walk(Paths.get(folderPath)).map(Object::toString)
+					.filter(s -> extensions.stream().anyMatch(s::endsWith))
+					.forEach(filePath -> {
+						System.out.println("adding: " + filePath);
+						BufferedImage image = null;
+						try {
+							image = ImageIO.read(new File(filePath));
+							images.add(image);
+							image.flush();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+
+					});
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return images;
+	}
+
+	public static ArrayList<BufferedImage> getImageFiles(String folderPath,
+			String extention) {
+		System.out.println("getting image files from " + folderPath);
+		ArrayList<BufferedImage> images = new ArrayList<>();
+		final List<String> extensions = Arrays.asList(extention);
 		try {
 			System.out.println("walking paths");
 			Files.walk(Paths.get(folderPath)).map(Object::toString)

@@ -20,6 +20,14 @@ public class Folder {
 		return ImageFolderHandler.getImageFiles(folderPath);
 	}
 
+	public static ArrayList<BufferedImage> getJPGFiles(String folderPath) {
+		return ImageFolderHandler.getImageFiles(folderPath, ".JPG");
+	}
+
+	public static ArrayList<BufferedImage> getPNGFiles(String folderPath) {
+		return ImageFolderHandler.getImageFiles(folderPath, ".png");
+	}
+
 	// Get this type files
 
 	// get this type'a files
