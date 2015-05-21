@@ -1,15 +1,12 @@
 package image.to.mp4;
 
 import my_classes.Folder;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-
 import javax.imageio.ImageIO;
-
 import org.jcodec.common.*;
 import org.jcodec.common.model.Size;
 import org.jcodec.common.model.TapeTimecode;
@@ -19,18 +16,21 @@ import org.jcodec.containers.mp4.muxer.*;
 public class ImageToMp4Encoder {
 	private SeekableByteChannel ch;
 	private FramesMP4MuxerTrack outTrack;
-	private int frameNo; // frame number = 0, 1, 2, 3, 4, 5, 6 ...
+	private int frameNum;
+	private int fps;
 	private MP4Muxer muxer;
 	private Size size;
 
 	public ImageToMp4Encoder(File out) throws IOException {
-		this.ch = NIOUtils.writableFileChannel(out);
+		ch = NIOUtils.writableFileChannel(out);
 
 		// Muxer that will store the encoded frames
 		muxer = new MP4Muxer(ch, Brand.MP4);
 
+		frameNum = 0;
+		fps = 60;
 		// Add video track to muxer
-		outTrack = muxer.addTrackForCompressed(TrackType.VIDEO, 25);
+		outTrack = muxer.addTrackForCompressed(TrackType.VIDEO, fps);
 	}
 
 	public void encodeImage(File png) throws IOException {
@@ -38,25 +38,18 @@ public class ImageToMp4Encoder {
 			BufferedImage read = ImageIO.read(png);
 			size = new Size(read.getWidth(), read.getHeight());
 		}
-		// Add packet to video track
-		// outTrack.addFrame(new MP4Packet(NIOUtils.fetchFrom(png), frameNo, 25,
-		// 1, frameNo, true, null, frameNo, 0));
 
-		ByteBuffer data = NIOUtils.fetchFrom(png);// Bytebuffer that contains
-													// encoded frame
-		long pts = frameNo * 2; // PTS = 0, 2, 4, 6, 8, 10 ...
-		long timescale = 1; // timescale = 1, so the values above are in
-							// seconds ( 0/1, 2/1, 4/1, 6/1, 8/1 ... )
-		long duration = 25;// duration = 2 / 1 = 2 seconds
-		// frameno
-		boolean iframe = true;// always iframe
-		TapeTimecode tapeTimecode = null;
-		long mediaPts = pts; // same as pts
-		int entryNo = 0;
-		MP4Packet mp4packet = new MP4Packet(data, pts, timescale, duration,
-				frameNo, iframe, tapeTimecode, mediaPts, entryNo);
+		ByteBuffer data = NIOUtils.fetchFrom(png);// contains encoded frame
+		long pts = frameNum * 2 * fps;
+		long duration = 2 * fps;
+		boolean iframe = true;// always iframe!
+		TapeTimecode tapeTimecode = null; // not really used anymore
+		int entryNo = 0; // nobody talks about this one
+		MP4Packet mp4packet = new MP4Packet(data, pts, fps, duration, pts,
+				iframe, tapeTimecode, pts, entryNo);
+
 		outTrack.addFrame(mp4packet);
-		frameNo++;
+		frameNum++;
 	}
 
 	public void finish() throws IOException {
