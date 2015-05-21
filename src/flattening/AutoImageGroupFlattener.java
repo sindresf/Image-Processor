@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 import my_classes.ComponentImage;
+import my_classes.ImageFolderHandler;
 
 //TODO either make more flexible, or overload with size and everything
 
@@ -24,29 +25,10 @@ public class AutoImageGroupFlattener {
 	// TODO look into this sweetass bullshitt with just a folder arg! :O :D
 	// TODO see if it can be made to take no size parameters
 	// TODO look into MAKING them transparent!
-	// TODO look into file type filtering!
 	public static void flatten(String folderWithFiles, int width, int height) {
-		ArrayList<BufferedImage> images = new ArrayList<>();
-		try {
+		ArrayList<BufferedImage> images = ImageFolderHandler
+				.getImageFiles(folderWithFiles);
 
-			Files.walk(Paths.get(folderWithFiles)).forEach(filePath -> {
-				if (Files.isRegularFile(filePath)) {
-					System.out.println("drawing: " + filePath);
-					BufferedImage image;
-
-					try {
-						image = ImageIO.read(filePath.toFile());
-						images.add(image);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-
-				}
-			});
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		BufferedImage combined = new BufferedImage(width, height,
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics g = combined.getGraphics();
@@ -269,8 +251,9 @@ public class AutoImageGroupFlattener {
 	}
 
 	public static void main(String[] args) {
-		testBasic();
+		// testBasic();
 		testFolder();
+
 	}
 
 	private static void testBasic() {
